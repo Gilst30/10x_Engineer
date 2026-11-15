@@ -1,99 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>10x Engineer</title>
-<style>
-  :root { --accent: #00e5ff; --accent2: #7c4dff; }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at center, #0f1b2e 0%, #05080f 70%);
-    color: #e8f1ff; font-family: "Segoe UI", system-ui, sans-serif; overflow: hidden;
-  }
-  canvas { position: fixed; inset: 0; z-index: 0; }
-  main { position: relative; z-index: 1; text-align: center; padding: 1rem; }
-  h1 {
-    margin: 0; font-size: clamp(2.5rem, 10vw, 7rem); font-weight: 800; letter-spacing: .04em;
-    white-space: nowrap; display: inline-block;
-  }
-  h1 .ch {
-    display: inline-block; opacity: 0; transform: translateY(40px) scale(.6) rotate(-8deg);
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: pop .7s cubic-bezier(.2,1.4,.4,1) forwards, glow 3s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 90ms), calc(1.8s + var(--i) * 120ms);
-  }
-  h1 .sp { width: .35em; }
-  @keyframes pop { to { opacity: 1; transform: none; } }
-  @keyframes glow {
-    0%, 100% { filter: drop-shadow(0 0 4px rgba(0,229,255,.3)); transform: translateY(0); }
-    50% { filter: drop-shadow(0 0 16px rgba(124,77,255,.9)); transform: translateY(-6px); }
-  }
-  p { opacity: 0; margin: 1rem 0 2rem; font-size: 1.1rem; color: #9fb4d0; animation: fade 1s ease 1.9s forwards; }
-  a.btn {
-    display: inline-block; padding: .85rem 2rem; border-radius: 999px; text-decoration: none;
-    color: #05080f; font-weight: 700; background: linear-gradient(90deg, var(--accent), var(--accent2));
-    opacity: 0; animation: fade 1s ease 2.3s forwards; transition: transform .2s, box-shadow .2s;
-  }
-  a.btn:hover, a.btn:focus-visible { transform: translateY(-3px) scale(1.04); box-shadow: 0 8px 28px rgba(0,229,255,.4); }
-  @keyframes fade { to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) {
-    h1 .ch, p, a.btn { animation: none; opacity: 1; transform: none; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planet Pulse – Live Satellites</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<canvas id="bg"></canvas>
-<main>
-  <h1 id="title" aria-label="10x Engineer"></h1>
-  <p>Live world-map projects built on public data</p>
-  <a class="btn" href="HW1/">Open HW1 &rarr; Planet Pulse</a>
-</main>
-<script>
-  // Letter-by-letter title
-  const title = document.getElementById('title');
-  [...'10x Engineer'].forEach((c, i) => {
-    const s = document.createElement('span');
-    s.className = 'ch' + (c === ' ' ? ' sp' : '');
-    s.style.setProperty('--i', i);
-    s.setAttribute('aria-hidden', 'true');
-    s.textContent = c === ' ' ? '\u00a0' : c;
-    title.appendChild(s);
-  });
+  <div id="map"></div>
+  <div id="globe" hidden></div>
+  <aside id="panel">
+    <h1>🛰️ Planet Pulse</h1>
+    <label class="check"><input type="checkbox" id="g-toggle"> 🌍 Globe view</label>
+    <label class="check" id="g-rotate-row" hidden><input type="checkbox" id="g-rotate" checked> Auto-rotate</label>
+    <nav id="tabs">
+      <button data-cat="pulse" class="active">🛰️ Planet Pulse</button>
+      <button data-cat="weather">⛅ Weather</button>
+      <button data-cat="fires">🔥 Fires</button>
+      <button data-cat="quakes">🌋 Earthquake</button>
+    </nav>
 
-  // Drifting particle network background
-  const cv = document.getElementById('bg'), ctx = cv.getContext('2d');
-  let w, h, pts;
-  function init() {
-    w = cv.width = innerWidth; h = cv.height = innerHeight;
-    pts = Array.from({ length: Math.min(90, Math.floor(w * h / 18000)) }, () => ({
-      x: Math.random() * w, y: Math.random() * h,
-      vx: (Math.random() - .5) * .4, vy: (Math.random() - .5) * .4
-    }));
-  }
-  function frame() {
-    ctx.clearRect(0, 0, w, h);
-    for (const p of pts) {
-      p.x = (p.x + p.vx + w) % w; p.y = (p.y + p.vy + h) % h;
-      ctx.fillStyle = 'rgba(0,229,255,.7)';
-      ctx.fillRect(p.x, p.y, 2, 2);
-    }
-    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
-      const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
-      if (d < 120) {
-        ctx.strokeStyle = 'rgba(124,77,255,' + (1 - d / 120) * .35 + ')';
-        ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
-      }
-    }
-    requestAnimationFrame(frame);
-  }
-  addEventListener('resize', init);
-  init();
-  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) frame();
-</script>
+    <section id="cat-pulse">
+    <p class="sub">Live satellite positions, computed in your browser from real orbital data (CelesTrak / NORAD).</p>
+
+    <label for="group">Satellite group</label>
+    <select id="group">
+      <option value="stations">Space stations (ISS, Tiangong)</option>
+      <option value="visual">100 brightest</option>
+      <option value="gps-ops">GPS</option>
+      <option value="weather">Weather</option>
+      <option value="science">Science</option>
+      <option value="geo">Geostationary</option>
+      <option value="starlink">Starlink</option>
+      <option value="active">All active (~10k, heavy)</option>
+    </select>
+
+    <label for="search">Search by name</label>
+    <input id="search" type="search" placeholder="e.g. ISS">
+
+    <div class="stats">
+      <div><b id="s-count">–</b><span>satellites</span></div>
+      <div><b id="s-alt">–</b><span>avg altitude km</span></div>
+      <div><b id="s-speed">–</b><span>avg speed km/s</span></div>
+    </div>
+
+    <h2>Altitude classes</h2>
+    <canvas id="chart" width="280" height="120"></canvas>
+
+    <h2>Selected</h2>
+    <div id="info">Click a satellite on the map.</div>
+    </section>
+
+    <section id="cat-weather" hidden>
+      <p class="sub">Interpolated temperature map built from 300+ live Open-Meteo points; circles are 60 major cities (size = wind speed).</p>
+      <div id="legend"><span>-30°</span><i></i><span>40°C</span></div>
+      <div class="stats"><div><b id="w-avg">–</b><span>avg temp °C</span></div></div>
+      <h2>Extremes</h2><div id="w-info"></div>
+      <h2>Cities by temperature (°C)</h2>
+      <canvas id="w-chart" width="280" height="120"></canvas>
+    </section>
+
+    <section id="cat-fires" hidden>
+      <p class="sub">Open wildfire events from the last 30 days tracked by NASA EONET. Size = burned area when reported.</p>
+      <div class="stats"><div><b id="f-count">–</b><span>open fires</span></div><div><b id="f-new">–</b><span>updated last 24h</span></div></div>
+      <h2>Latest (click to zoom)</h2><div id="f-list"></div>
+    </section>
+
+    <section id="cat-quakes" hidden>
+      <p class="sub">Earthquakes from USGS, refreshed every minute. Size = magnitude, colour = depth (yellow shallow, orange mid, purple deep).</p>
+      <label for="q-feed">Period</label>
+      <select id="q-feed">
+        <option value="all_hour">Past hour (all)</option>
+        <option value="all_day" selected>Past day (all)</option>
+        <option value="2.5_week">Past week (M2.5+)</option>
+      </select>
+      <div class="stats"><div><b id="q-count">–</b><span>quakes</span></div><div><b id="q-max">–</b><span>strongest</span></div><div><b id="q-avg">–</b><span>avg mag</span></div></div>
+      <h2>Magnitude histogram</h2>
+      <canvas id="q-chart" width="280" height="120"></canvas>
+      <h2>Strongest (click to zoom)</h2><div id="q-list"></div>
+    </section>
+
+    <div id="status">Loading…</div>
+  </aside>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/satellite.js@6.0.1/dist/satellite.min.js"></script>
+  <script src="https://unpkg.com/globe.gl@2.34.4/dist/globe.gl.min.js"></script>
+  <script src="other.js"></script>
+  <script src="app.js"></script>
+  <script src="globe.js"></script>
 </body>
 </html>
-

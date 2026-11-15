@@ -1,0 +1,29 @@
+html, body { margin: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; background: #0b0f1a; color: #dbe4ff; }
+#map, #globe { position: absolute; inset: 0; background: #0b0f1a; }
+.check { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #dbe4ff; cursor: pointer; }
+.check input { width: auto; margin: 0; }
+#panel {
+  position: absolute; top: 12px; right: 12px; z-index: 1000; width: 300px; max-height: calc(100% - 24px);
+  overflow-y: auto; box-sizing: border-box; padding: 14px;
+  background: rgba(11, 15, 26, .88); border: 1px solid #27325a; border-radius: 12px; backdrop-filter: blur(6px);
+}
+h1 { margin: 0; font-size: 20px; }
+h2 { margin: 14px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: #8fa3e8; }
+.sub { font-size: 12px; color: #8b97bd; margin: 4px 0 10px; }
+label { display: block; font-size: 12px; margin-top: 8px; color: #8fa3e8; }
+select, input { width: 100%; box-sizing: border-box; margin-top: 3px; padding: 6px; border-radius: 6px; border: 1px solid #27325a; background: #121935; color: inherit; }
+.stats { display: flex; gap: 6px; margin-top: 12px; }
+.stats div { flex: 1; background: #121935; border-radius: 8px; padding: 6px; text-align: center; }
+.stats b { display: block; font-size: 17px; color: #6ee7ff; }
+.stats span { font-size: 10px; color: #8b97bd; }
+#info { font-size: 13px; line-height: 1.5; }
+#tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0; }
+#tabs button { flex: 1 1 45%; padding: 6px; border: 1px solid #27325a; border-radius: 6px; background: #121935; color: inherit; cursor: pointer; font-size: 12px; }
+#tabs button.active { background: #2b3f8f; border-color: #6ee7ff; }
+#legend { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8b97bd; }
+#legend i { flex: 1; height: 10px; border-radius: 5px; background: linear-gradient(90deg, #5a3cc8, #3c78ff, #46c8ff, #46dc96, #b4e650, #ffd246, #ff8232, #e62828); }
+[hidden] { display: none !important; }
+a { color: #6ee7ff; }
+#f-list, #q-list, #w-info { font-size: 12px; line-height: 1.6; }
+#status { margin-top: 12px; font-size: 11px; color: #8b97bd; }
+@media (max-width: 700px) { #panel { width: auto; left: 12px; max-height: 45%; top: auto; bottom: 12px; } }
