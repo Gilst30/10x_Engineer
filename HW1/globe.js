@@ -106,3 +106,4 @@ map.flyTo = function (ll, z, opts) {
 
 $('g-toggle').addEventListener('change', e => globeView.toggle(e.target.checked));
 $('g-rotate').addEventListener('change', e => { if (globeView.g) globeView.g.controls().autoRotate = e.target.checked; });
+globeView.toggle($('g-toggle').checked);
